@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
+// Add this to your layout.tsx or use Next.js font loader
+import { Aboreto } from 'next/font/google';
+const aboreto = Aboreto({ weight: '400', subsets: ['latin'] });
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
