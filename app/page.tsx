@@ -79,46 +79,51 @@ export default function Menu() {
   const [filter, setFilter] = useState("all");
   const [activeAR, setActiveAR] = useState<string | null>(null);
 
-  // MANAGE CAMERA LIFECYCLE
+  // KILL SWITCH: Clean up camera feed and UI when AR is closed
   useEffect(() => {
-    const sceneEl = document.querySelector('a-scene');
-    
-    if (activeAR) {
-      // Force engine to start if component mounts
-      const startEngine = () => {
-        if (sceneEl?.systems['mindar-image-system']) {
-          sceneEl.systems['mindar-image-system'].start();
-        }
-      };
-      sceneEl?.addEventListener('renderstart', startEngine);
-    } else {
-      // Hard Kill to prevent "Dark Screen" or "Frozen Feed" on reopen
-      if (sceneEl?.systems['mindar-image-system']) {
+    if (!activeAR) {
+      const sceneEl = document.querySelector('a-scene');
+      if (sceneEl && sceneEl.systems && sceneEl.systems['mindar-image-system']) {
         sceneEl.systems['mindar-image-system'].stop();
       }
+      // Stop all video streams to turn off the camera light
+      const videos = document.querySelectorAll('video');
+      videos.forEach(v => {
+        const stream = (v as HTMLVideoElement).srcObject as MediaStream;
+        stream?.getTracks().forEach(track => track.stop());
+        v.remove();
+      });
     }
   }, [activeAR]);
+
+  const closeAR = () => {
+    const sceneEl = document.querySelector('a-scene');
+    if (sceneEl) sceneEl.parentNode.removeChild(sceneEl);
+    setActiveAR(null);
+  };
 
   const filteredItems = filter === "all" ? menuData : menuData.filter(item => item.category === filter);
 
   return (
     <>
-      {/* FORCE UI CLEANUP */}
       <style>{`
-        .mindar-ui-scanning, .mindar-ui-loading {
-          display: ${activeAR ? 'flex' : 'none'} !important;
-          z-index: 210;
-        }
-        .a-enter-vr, .a-enter-ar, .a-enter-vr-button {
-          display: none !important;
-        }
+        /* Fix the camera black bars */
         video {
           position: fixed !important;
-          top: 0; left: 0;
-          width: 100% !important;
-          height: 100% !important;
+          top: 0 !important;
+          left: 0 !important;
+          width: 100vw !important;
+          height: 100vh !important;
           object-fit: cover !important;
+          z-index: 199 !important;
         }
+        /* Ensure scan overlay is centered and clean */
+        .mindar-ui-scanning, .mindar-ui-loading {
+          display: ${activeAR ? 'flex' : 'none'} !important;
+          background: transparent !important;
+          z-index: 210 !important;
+        }
+        .a-enter-vr, .a-enter-ar { display: none !important; }
       `}</style>
 
       <Script src="https://aframe.io/releases/1.5.0/aframe.min.js" strategy="beforeInteractive" />
@@ -126,16 +131,16 @@ export default function Menu() {
 
       <div className="min-h-screen bg-[#0c0c0c] text-white flex flex-col items-center pb-20">
         
-        {/* AR VIEWPORT */}
         {activeAR && (
-          <div className="fixed inset-0 z-[200] bg-black">
-            <div className="fixed top-0 w-full p-8 flex justify-between items-center z-[220]">
+          <div className="fixed inset-0 z-[200] bg-black overflow-hidden">
+            <div className="absolute top-0 w-full p-8 flex justify-between items-center z-[300]">
                 <div className="flex flex-col">
                    <span className="text-amber-500 text-[10px] tracking-[0.4em] uppercase font-bold font-sans">Sway Soul Studio</span>
                 </div>
                 <button 
-                  onClick={() => setActiveAR(null)} 
-                  className="bg-white/10 border border-white/20 text-white w-12 h-12 rounded-full text-xl flex items-center justify-center active:scale-90"
+                  onClick={closeAR} 
+                  className="bg-white/20 backdrop-blur-md border border-white/20 text-white w-12 h-12 rounded-full text-xl flex items-center justify-center shadow-2xl pointer-events-auto"
+                  style={{ touchAction: 'manipulation' }}
                 >
                   ✕
                 </button>
@@ -148,6 +153,7 @@ export default function Menu() {
               renderer="colorManagement: true, physicallyCorrectLights" 
               vr-mode-ui="enabled: false" 
               device-orientation-permission-ui="enabled: false"
+              className="absolute inset-0"
             >
               <a-assets>
                 <a-asset-item id="drinkModel" src={activeAR}></a-asset-item>
