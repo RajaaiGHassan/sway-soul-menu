@@ -4,24 +4,8 @@
 import { useState, useEffect } from 'react';
 import Script from 'next/script';
 
-// --- TYPES ---
-interface MenuItem {
-  id: number;
-  name: string;
-  price: string;
-  category: string;
-  desc: string;
-  mood: string;
-  glb?: string; 
-}
-
-// --- DATABASE ---
-const categories = [
-  "all", "menú a la carta", "padellino gourmet", "tablas", 
-  "signature cocktails", "iba cocktails", "the macallan", "licores"
-];
-
-const menuData: MenuItem[] = [
+// --- FULL DATABASE ---
+const menuData = [
   { id: 1, name: "Hummus de Garbanzos Artesano", price: "8,5€", category: "menú a la carta", desc: "Con Focaccia artesana.", mood: "Entrante" },
   { id: 2, name: "Bresaola, Rúcola, Parmigiano y Limón", price: "9,5€", category: "menú a la carta", desc: "Con Focaccia.", mood: "Entrante" },
   { id: 3, name: "Pan de Cristal con Tomate", price: "5,5€", category: "menú a la carta", desc: "Aceite EVO.", mood: "Entrante" },
@@ -75,55 +59,50 @@ const menuData: MenuItem[] = [
   { id: 403, name: "Rey Campero Espadín", price: "8,5€", category: "licores", desc: "47.1°", mood: "Mezcal 60ml" }
 ];
 
+const categories = [
+  "all", "menú a la carta", "padellino gourmet", "tablas", 
+  "signature cocktails", "iba cocktails", "the macallan", "licores"
+];
+
 export default function Menu() {
   const [filter, setFilter] = useState("all");
   const [activeAR, setActiveAR] = useState<string | null>(null);
 
-  // KILL SWITCH: Clean up camera feed and UI when AR is closed
+  // CLEANUP CAMERA
   useEffect(() => {
     if (!activeAR) {
       const sceneEl = document.querySelector('a-scene');
-      if (sceneEl && sceneEl.systems && sceneEl.systems['mindar-image-system']) {
+      if (sceneEl?.systems?.['mindar-image-system']) {
         sceneEl.systems['mindar-image-system'].stop();
       }
-      // Stop all video streams to turn off the camera light
       const videos = document.querySelectorAll('video');
       videos.forEach(v => {
-        const stream = (v as HTMLVideoElement).srcObject as MediaStream;
-        stream?.getTracks().forEach(track => track.stop());
+        const stream = v.srcObject;
+        if (stream) stream.getTracks().forEach(track => track.stop());
         v.remove();
       });
     }
   }, [activeAR]);
-
-  const closeAR = () => {
-    const sceneEl = document.querySelector('a-scene');
-    if (sceneEl) sceneEl.parentNode.removeChild(sceneEl);
-    setActiveAR(null);
-  };
 
   const filteredItems = filter === "all" ? menuData : menuData.filter(item => item.category === filter);
 
   return (
     <>
       <style>{`
-        /* Fix the camera black bars */
         video {
           position: fixed !important;
-          top: 0 !important;
-          left: 0 !important;
-          width: 100vw !important;
-          height: 100vh !important;
+          top: 0 !important; left: 0 !important;
+          width: 100vw !important; height: 100vh !important;
           object-fit: cover !important;
-          z-index: 199 !important;
+          z-index: 1 !important;
         }
-        /* Ensure scan overlay is centered and clean */
-        .mindar-ui-scanning, .mindar-ui-loading {
-          display: ${activeAR ? 'flex' : 'none'} !important;
-          background: transparent !important;
-          z-index: 210 !important;
+        .mindar-ui-scanning, .mindar-ui-loading { z-index: 10 !important; }
+        .a-enter-vr { display: none !important; }
+        /* Forces button to stay clickable on mobile */
+        .close-btn { 
+          -webkit-tap-highlight-color: transparent;
+          touch-action: manipulation;
         }
-        .a-enter-vr, .a-enter-ar { display: none !important; }
       `}</style>
 
       <Script src="https://aframe.io/releases/1.5.0/aframe.min.js" strategy="beforeInteractive" />
@@ -132,80 +111,63 @@ export default function Menu() {
       <div className="min-h-screen bg-[#0c0c0c] text-white flex flex-col items-center pb-20">
         
         {activeAR && (
-          <div className="fixed inset-0 z-[200] bg-black overflow-hidden">
-            <div className="absolute top-0 w-full p-8 flex justify-between items-center z-[300]">
-                <div className="flex flex-col">
-                   <span className="text-amber-500 text-[10px] tracking-[0.4em] uppercase font-bold font-sans">Sway Soul Studio</span>
-                </div>
+          <div className="fixed inset-0 z-[1000] bg-black overflow-hidden">
+            {/* CLOSE BUTTON - INSANELY HIGH Z-INDEX */}
+            <div className="absolute top-0 right-0 p-10 z-[2000]">
                 <button 
-                  onClick={closeAR} 
-                  className="bg-white/20 backdrop-blur-md border border-white/20 text-white w-12 h-12 rounded-full text-xl flex items-center justify-center shadow-2xl pointer-events-auto"
-                  style={{ touchAction: 'manipulation' }}
+                  onClick={() => setActiveAR(null)} 
+                  className="close-btn bg-white text-black w-14 h-14 rounded-full font-bold text-2xl flex items-center justify-center shadow-[0_0_20px_rgba(255,255,255,0.3)]"
                 >
                   ✕
                 </button>
             </div>
 
             <a-scene 
-              mindar-image="imageTargetSrc: /targets.mind; autoStart: true; uiLoading: no; uiError: no; uiScanning: yes;" 
-              embedded 
-              color-space="sRGB" 
-              renderer="colorManagement: true, physicallyCorrectLights" 
-              vr-mode-ui="enabled: false" 
-              device-orientation-permission-ui="enabled: false"
-              className="absolute inset-0"
+              mindar-image="imageTargetSrc: /targets.mind; autoStart: true; uiScanning: yes;" 
+              embedded color-space="sRGB" renderer="colorManagement: true" 
+              vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false"
             >
-              <a-assets>
-                <a-asset-item id="drinkModel" src={activeAR}></a-asset-item>
-              </a-assets>
+              <a-assets><a-asset-item id="model" src={activeAR}></a-asset-item></a-assets>
               <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
               <a-entity mindar-image-target="targetIndex: 0">
-                <a-gltf-model 
-                  src="#drinkModel" 
-                  rotation="0 0 0" 
-                  position="0 0 0.1" 
-                  scale="0.05 0.05 0.05" 
-                  animation="property: rotation; to: 0 360 0; dur: 8000; easing: linear; loop: true"
-                />
+                <a-gltf-model src="#model" rotation="0 0 0" position="0 0 0.1" scale="1 1 1" />
               </a-entity>
             </a-scene>
           </div>
         )}
 
-        <header className="py-20 text-center"><h1 className="text-4xl md:text-7xl tracking-[0.5em] font-light uppercase">Sway Soul</h1></header>
+        <header className="py-20 text-center">
+            <h1 className="text-4xl tracking-[0.5em] font-light uppercase">Sway Soul</h1>
+        </header>
         
         <nav className="flex flex-wrap justify-center gap-3 mb-12 px-6 max-w-4xl">
           {categories.map(cat => (
             <button 
-                key={cat} 
-                onClick={() => setFilter(cat)} 
-                className={`px-5 py-2 rounded-full text-[9px] uppercase tracking-widest border transition-all duration-300 ${filter === cat ? "bg-amber-500 border-amber-500 text-black font-bold" : "border-white/10 text-white/40 hover:border-white/30"}`}
+                key={cat} onClick={() => setFilter(cat)} 
+                className={`px-5 py-2 rounded-full text-[10px] uppercase tracking-widest border transition-all ${filter === cat ? "bg-amber-500 border-amber-500 text-black font-bold" : "border-white/10 text-white/40"}`}
             >
                 {cat}
             </button>
           ))}
         </nav>
 
-        <div className="w-full max-w-3xl px-6 space-y-6">
+        <div className="w-full max-w-3xl px-6 space-y-8">
           {filteredItems.map(item => (
-            <div key={item.id} className="border-b border-white/5 pb-6 group">
+            <div key={item.id} className="border-b border-white/5 pb-6">
               <div className="flex justify-between items-end">
                 <div className="flex-1">
                   <div className="flex gap-3 mb-2 items-center">
                     <span className="text-[8px] text-amber-500 font-bold uppercase tracking-widest">{item.mood}</span>
                     {item.glb && (
-                        <button 
-                            onClick={() => setActiveAR(item.glb!)} 
-                            className="text-[8px] border border-amber-500/50 text-amber-500 px-2 py-0.5 rounded uppercase hover:bg-amber-500 hover:text-black transition-colors"
-                        >
+                        <button onClick={() => setActiveAR(item.glb)} className="text-[9px] border border-amber-500/50 text-amber-500 px-3 py-1 rounded uppercase hover:bg-amber-500 hover:text-black transition-colors">
                             Launch AR
                         </button>
                     )}
                   </div>
-                  <h3 className="text-xl font-medium group-hover:text-amber-200 transition-colors">{item.name}</h3>
+                  <h3 className="text-xl font-medium">{item.name}</h3>
                   <p className="text-sm text-white/40 italic mt-1">{item.desc}</p>
                 </div>
-                <div className="ml-4 font-medium text-amber-200 text-lg whitespace-nowrap">{item.price}</div>
+                <div className="ml-4 font-medium text-amber-200 text-lg">{item.price}</div>
               </div>
             </div>
           ))}
