@@ -98,21 +98,26 @@ export default function Menu() {
           </button>
           
           <ModelViewer
-            src={activeAR}
-            ar
-            ar-modes="webxr scene-viewer quick-look"
-            camera-controls
-            touch-action="pan-y"
-            alt="3D Cocktail Model"
-            shadow-intensity="1"
-            auto-rotate
-            ar-placement="floor"
-            style={{ width: '100%', height: '100%' }}
-          >
-            <button slot="ar-button" className="absolute bottom-10 left-1/2 -translate-x-1/2 bg-amber-500 text-white px-8 py-4 rounded-full font-bold shadow-2xl uppercase tracking-tighter">
-              📍 Colocar en mi mesa
-            </button>
-          </ModelViewer>
+  src={activeAR}
+  ar
+  ar-modes="scene-viewer webxr quick-look" // Prioritize Scene-Viewer for Android tables
+  ar-placement="floor" // Helps the AI look for horizontal planes specifically
+  camera-controls
+  touch-action="pan-y"
+  shadow-intensity="1.5" // Stronger shadows help the eye see where the surface is
+  alt="3D Cocktail Model"
+  auto-rotate
+  style={{ width: '100%', height: '100%' }}
+>
+  {/* This button only appears when the surface is ready */}
+  <button slot="ar-button" style={{
+    position: 'absolute', bottom: '40px', left: '50%', transform: 'translateX(-50%)',
+    backgroundColor: '#f59e0b', color: 'white', padding: '12px 24px', borderRadius: '99px',
+    border: 'none', fontWeight: 'bold', zIndex: 999
+  }}>
+    📍 COLOCAR EN MESA
+  </button>
+</ModelViewer>
         </div>
       )}
 
