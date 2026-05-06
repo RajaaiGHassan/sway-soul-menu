@@ -157,35 +157,36 @@ export default function Menu() {
           <ModelViewer
   src={activeAR}
   ar
-  ar-modes="webxr scene-viewer quick-look" 
+  // 1. Prioritize 'scene-viewer' for Android and 'quick-look' for iOS 
+  // for the most stable "steady" tracking.
+  ar-modes="scene-viewer quick-look webxr"
   ar-placement="floor"
+  
+  // 2. Camera controls for the 3D mode (pre-AR)
   camera-controls
   touch-action="pan-y"
   
-  /* NEW REFINEMENTS */
-  initial-camera-orbit="0deg 75deg 0.5m" // Starts at a nice "drink-view" angle
-  min-camera-orbit="auto auto 0.2m"      // Allows the user to get very close
-  max-camera-orbit="auto auto 1m"        // Prevents them from zooming too far out
+  // 3. This stops the model from "auto-centering" or moving 
+  // unexpectedly when you are trying to look at details.
+  interaction-prompt="none"
   
-  shadow-intensity="2" 
-  shadow-softness="1"
-  environment-image="neutral"            // Better lighting for indoor restaurants
+  // 4. Visual improvements to make it look grounded
+  shadow-intensity="2"
+  shadow-softness="0.5"
+  exposure="1"
+  environment-image="neutral"
   
   style={{ width: '100%', height: '100%' }}
 >
-  {/* USER GUIDANCE SLOTS */}
-  <div slot="ar-prompt" id="ar-prompt" className="absolute bottom-24 left-1/2 -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-lg text-[10px] tracking-widest uppercase border border-amber-500/50">
-    ✨ Escanea la mesa o toca para colocar
-  </div>
-
-  <button slot="ar-button" className="absolute bottom-10 left-1/2 -translate-x-1/2 bg-amber-500 text-black px-8 py-4 rounded-full font-black text-xs uppercase tracking-widest shadow-[0_0_30px_rgba(245,158,11,0.5)]">
-    📍 FIJAR EN MESA
+  {/* The "Anchor" Button - crucial for stability */}
+  <button slot="ar-button" className="absolute bottom-12 left-1/2 -translate-x-1/2 bg-amber-500 text-black px-10 py-4 rounded-full font-black text-sm uppercase tracking-widest shadow-2xl">
+    📍 FIJAR EN LA MESA
   </button>
 
-  {/* If AR fails, they can still see it in 3D */}
-  <div slot="poster" className="flex flex-col items-center justify-center h-full bg-[#0c0c0c]">
-     <div className="w-10 h-10 border-2 border-amber-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-     <p className="text-white/50 text-[10px] tracking-widest uppercase">Preparando Experiencia 3D...</p>
+  <div slot="poster" className="flex items-center justify-center h-full bg-[#0c0c0c]">
+     <p className="text-amber-500/50 text-[10px] tracking-[0.3em] uppercase animate-pulse">
+        Preparando Vista Detallada...
+     </p>
   </div>
 </ModelViewer>
         </div>
