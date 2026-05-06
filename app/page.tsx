@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { QRCodeSVG } from 'qrcode.react'; 
+import { useState } from 'react';
 
 // --- TYPES ---
 interface MenuItem {
@@ -15,8 +14,7 @@ interface MenuItem {
   glb?: string; 
 }
 
-const ModelViewer = 'model-viewer' as any;
-
+// --- DATABASE ---
 const categories = [
   "all", "menú a la carta", "padellino gourmet", "tablas", 
   "signature cocktails", "iba cocktails", "the macallan", "licores"
@@ -53,15 +51,15 @@ const menuData: MenuItem[] = [
   { id: 23, name: "Tabla de Embutidos", price: "17€", category: "tablas", desc: "Mortadella DOP, Coppa Stagionata, Speck DOP, Prosciutto 18M, Spianata Calabra.", mood: "Gourmet", image: "https://www.swaysoul.com/wp-content/uploads/2026/03/IMG_1174-scaled.jpeg" },
 
   // --- SIGNATURE COCKTAILS ---
-  { id: 24, name: "Smoky Peach", price: "15€", category: "signature cocktails", desc: "Laphroaig 10, Melocotón Fermentado, Honey Jengibre, Limón.", mood: "Signature", image: "https://www.swaysoul.com/wp-content/uploads/2026/03/507FF8B5-CF39-4966-AD6E-1790890D96CF-scaled.jpeg", glb: "https://modelviewer.dev/shared-assets/models/Astronaut.glb" },
-  { id: 25, name: "Malhigo", price: "15€", category: "signature cocktails", desc: "Gin Roku, Granadina Artesana, Zumo de Limón, Sal.", mood: "Signature", image: "https://www.swaysoul.com/wp-content/uploads/2025/09/Image-10.jpg", glb: "https://modelviewer.dev/shared-assets/models/glTF-Sample-Assets/Models/DamagedHelmet/glTF-Binary/DamagedHelmet.glb" },
-  { id: 26, name: "Bombastic", price: "14€", category: "signature cocktails", desc: "Hibiki Harmony, Orange & Chocolate Bitter, Agave.", mood: "Signature", image: "https://www.swaysoul.com/wp-content/uploads/2025/09/Image-9.jpg", glb: "https://modelviewer.dev/shared-assets/models/Astronaut.glb" },
-  { id: 27, name: "Shrub Barrel", price: "12€", category: "signature cocktails", desc: "Whiskey Maker’s Mark, Shrub de Manzana, Zumo de Limón.", mood: "Signature", image: "https://www.swaysoul.com/wp-content/uploads/2026/03/DSC07281-copia-scaled.jpeg", glb: "https://modelviewer.dev/shared-assets/models/Astronaut.glb" },
-  { id: 28, name: "Smoky Garden", price: "16€", category: "signature cocktails", desc: "Mezcal Rey Campero, Chartreuse Verde, Cordial de Lima, Perfume de Laurel.", mood: "Signature", image: "https://www.swaysoul.com/wp-content/uploads/2026/03/IMG_0258.jpeg", glb: "https://modelviewer.dev/shared-assets/models/Astronaut.glb" },
-  { id: 29, name: "O’ Deus", price: "16€", category: "signature cocktails", desc: "Mezcal Rey Campero, Tequila 8, Falernum, Zumo de Limón, Agave.", mood: "Signature", image: "https://www.swaysoul.com/wp-content/uploads/2026/03/DSC07303-copia-scaled.jpeg", glb: "https://modelviewer.dev/shared-assets/models/Astronaut.glb" },
-  { id: 30, name: "Teka", price: "16€", category: "signature cocktails", desc: "Vodka Haku, Falernum Artesano, Tepache, Zumo de Limón, Angostura.", mood: "Signature", image: "https://www.swaysoul.com/wp-content/uploads/2026/03/DSC07357-copia-scaled.jpeg", glb: "https://modelviewer.dev/shared-assets/models/Astronaut.glb" },
-  { id: 31, name: "Plaquiri", price: "16€", category: "signature cocktails", desc: "Ron Blanco Santiago de Cuba, Cordial de Plátano Artesano, Limón.", mood: "Signature", image: "https://www.swaysoul.com/wp-content/uploads/2026/03/DSC07061-copia-scaled.jpeg", glb: "https://modelviewer.dev/shared-assets/models/Astronaut.glb" },
-  { id: 32, name: "Honey Fizz", price: "16€", category: "signature cocktails", desc: "Ron 8 años Santiago de Cuba, Honey mix Pera Artesano, Lima.", mood: "Signature", image: "https://www.swaysoul.com/wp-content/uploads/2026/03/DSC07298-scaled.jpeg", glb: "https://modelviewer.dev/shared-assets/models/Astronaut.glb" },
+  { id: 24, name: "Smoky Peach", price: "15€", category: "signature cocktails", desc: "Laphroaig 10, Melocotón Fermentado, Honey Jengibre, Limón.", mood: "Signature", image: "https://www.swaysoul.com/wp-content/uploads/2026/03/507FF8B5-CF39-4966-AD6E-1790890D96CF-scaled.jpeg", glb: "/models/smoky_peach.glb" },
+  { id: 25, name: "Malhigo", price: "15€", category: "signature cocktails", desc: "Gin Roku, Granadina Artesana, Zumo de Limón, Sal.", mood: "Signature", image: "https://www.swaysoul.com/wp-content/uploads/2025/09/Image-10.jpg", glb: "/models/malhigo.glb" },
+  { id: 26, name: "Bombastic", price: "14€", category: "signature cocktails", desc: "Hibiki Harmony, Orange & Chocolate Bitter, Agave.", mood: "Signature", image: "https://www.swaysoul.com/wp-content/uploads/2025/09/Image-9.jpg", glb: "/models/bombastic.glb" },
+  { id: 27, name: "Shrub Barrel", price: "12€", category: "signature cocktails", desc: "Whiskey Maker’s Mark, Shrub de Manzana, Zumo de Limón.", mood: "Signature", image: "https://www.swaysoul.com/wp-content/uploads/2026/03/DSC07281-copia-scaled.jpeg", glb: "/models/shrub.glb" },
+  { id: 28, name: "Smoky Garden", price: "16€", category: "signature cocktails", desc: "Mezcal Rey Campero, Chartreuse Verde, Cordial de Lima, Perfume de Laurel.", mood: "Signature", image: "https://www.swaysoul.com/wp-content/uploads/2026/03/IMG_0258.jpeg", glb: "/models/garden.glb" },
+  { id: 29, name: "O’ Deus", price: "16€", category: "signature cocktails", desc: "Mezcal Rey Campero, Tequila 8, Falernum, Zumo de Limón, Agave.", mood: "Signature", image: "https://www.swaysoul.com/wp-content/uploads/2026/03/DSC07303-copia-scaled.jpeg", glb: "/models/odeus.glb" },
+  { id: 30, name: "Teka", price: "16€", category: "signature cocktails", desc: "Vodka Haku, Falernum Artesano, Tepache, Zumo de Limón, Angostura.", mood: "Signature", image: "https://www.swaysoul.com/wp-content/uploads/2026/03/DSC07357-copia-scaled.jpeg", glb: "/models/teka.glb" },
+  { id: 31, name: "Plaquiri", price: "16€", category: "signature cocktails", desc: "Ron Blanco Santiago de Cuba, Cordial de Plátano Artesano, Limón.", mood: "Signature", image: "https://www.swaysoul.com/wp-content/uploads/2026/03/DSC07061-copia-scaled.jpeg", glb: "/models/plaquiri.glb" },
+  { id: 32, name: "Honey Fizz", price: "16€", category: "signature cocktails", desc: "Ron 8 años Santiago de Cuba, Honey mix Pera Artesano, Lima.", mood: "Signature", image: "https://www.swaysoul.com/wp-content/uploads/2026/03/DSC07298-scaled.jpeg", glb: "/models/honeyfizz.glb" },
 
   // --- IBA COCKTAILS ---
   { id: 40, name: "Vieux Carré", price: "13€", category: "iba cocktails", desc: "Few Rye Whiskey, Cognac, Vermouth rojo, Benedictine.", mood: "IBA" },
@@ -83,140 +81,128 @@ const menuData: MenuItem[] = [
   // --- LICORES ---
   { id: 200, name: "Few Rye", price: "9,5€", category: "licores", desc: "46.5°", mood: "Whisky 60ml" },
   { id: 201, name: "Few Bourbon", price: "9€", category: "licores", desc: "46.5°", mood: "Whisky 60ml" },
-  { id: 202, name: "Wild Turkey 84", price: "4€", category: "licores", desc: "40.5°", mood: "Whisky 60ml" },
-  { id: 203, name: "Wild Turkey 101", price: "8,5€", category: "licores", desc: "50.5°", mood: "Whisky 60ml" },
-  { id: 204, name: "Mitcher’s Rye", price: "12€", category: "licores", desc: "42.4°", mood: "Whisky 60ml" },
-  { id: 205, name: "Mitcher’s Bourbon", price: "12€", category: "licores", desc: "45.7°", mood: "Whisky 60ml" },
-  { id: 206, name: "Templeton 4 Y.O.", price: "6€", category: "licores", desc: "40°", mood: "Whisky 60ml" },
-  { id: 207, name: "Templeton 6 Y.O.", price: "7€", category: "licores", desc: "45.75°", mood: "Whisky 60ml" },
   { id: 208, name: "Maker’s Mark", price: "6€", category: "licores", desc: "45°", mood: "Whisky 60ml" },
-  { id: 209, name: "Toki", price: "5,5€", category: "licores", desc: "43°", mood: "Whisky 60ml" },
   { id: 210, name: "Hibiki Harmony", price: "14,5€", category: "licores", desc: "43°", mood: "Whisky 60ml" },
-  { id: 211, name: "Laphroaig 10 Y.O.", price: "8€", category: "licores", desc: "40°", mood: "Whisky 60ml" },
-  { id: 212, name: "Laphroaig Quarter Cask", price: "10€", category: "licores", desc: "48°", mood: "Whisky 60ml" },
-  { id: 213, name: "Jameson Select Black", price: "7€", category: "licores", desc: "40°", mood: "Whisky 60ml" },
-  { id: 214, name: "Ardbeg 10 Y.O.", price: "13€", category: "licores", desc: "46°", mood: "Whisky 60ml" },
   { id: 300, name: "Tequila 8 Plata", price: "8,5€", category: "licores", desc: "40°", mood: "Tequila 60ml" },
-  { id: 301, name: "Tequila 8 Reposado", price: "9€", category: "licores", desc: "40°", mood: "Tequila 60ml" },
-  { id: 302, name: "Don Julio Blanco", price: "9,5€", category: "licores", desc: "38°", mood: "Tequila 60ml" },
-  { id: 303, name: "Fortaleza Añejo", price: "15€", category: "licores", desc: "40°", mood: "Tequila 60ml" },
-  { id: 304, name: "Fortaleza Blanco", price: "9,5€", category: "licores", desc: "40°", mood: "Tequila 60ml" },
-  { id: 305, name: "Clase Azul Plata", price: "22€", category: "licores", desc: "40°", mood: "Tequila 60ml" },
-  { id: 306, name: "Clase Azul Reposado", price: "40€", category: "licores", desc: "40°", mood: "Tequila 60ml" },
-  { id: 400, name: "Ojo de Dios Blanco", price: "9,5€", category: "licores", desc: "42°", mood: "Mezcal 60ml" },
-  { id: 401, name: "Ojo de Dios Café", price: "9,5€", category: "licores", desc: "35°", mood: "Mezcal 60ml" },
-  { id: 402, name: "Siete Misterios Doba Yej", price: "9€", category: "licores", desc: "44°", mood: "Mezcal 60ml" },
-  { id: 403, name: "Rey Campero Espadín", price: "8,5€", category: "licores", desc: "47.1°", mood: "Mezcal 60ml" },
-  { id: 404, name: "Rey Campero Mexicano", price: "14€", category: "licores", desc: "48.5°", mood: "Mezcal 60ml" },
-  { id: 405, name: "Rey Campero Sierra Negra", price: "18€", category: "licores", desc: "49.2°", mood: "Mezcal 60ml" },
-  { id: 406, name: "Rey Campero Coyote", price: "18€", category: "licores", desc: "49.8°", mood: "Mezcal 60ml" }
+  { id: 403, name: "Rey Campero Espadín", price: "8,5€", category: "licores", desc: "47.1°", mood: "Mezcal 60ml" }
 ];
 
 export default function Menu() {
   const [filter, setFilter] = useState("all");
   const [activeAR, setActiveAR] = useState<string | null>(null);
-  const [showQR, setShowQR] = useState(false);
 
   const filteredItems = filter === "all" ? menuData : menuData.filter(item => item.category === filter);
 
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.type = 'module';
-    script.src = 'https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js';
-    document.head.appendChild(script);
-  }, []);
-
   return (
-    <div suppressHydrationWarning={true} className="min-h-screen bg-[#0c0c0c] text-white flex flex-col items-center font-['Aboreto',cursive] pb-20">
-      
-      {/* PREMIUM STUDIO + QR MODAL */}
-      {activeAR && (
-        <div className="fixed inset-0 z-[100] bg-[#050505] flex flex-col animate-in fade-in duration-500">
-          <div className="absolute top-0 w-full p-8 flex justify-between items-center z-[110]">
-             <div className="flex flex-col">
-                <span className="text-amber-500 text-[10px] tracking-[0.4em] uppercase font-bold">Sway Studio</span>
-                <button onClick={() => setShowQR(!showQR)} className="text-white/40 text-[8px] uppercase tracking-widest mt-1 border-b border-white/10">
-                  {showQR ? "Volver al Modelo" : "Generar QR de Anclaje"}
-                </button>
-             </div>
-             <button onClick={() => {setActiveAR(null); setShowQR(false);}} className="bg-white/5 border border-white/10 text-white w-12 h-12 rounded-full flex items-center justify-center">✕</button>
-          </div>
+    <>
+      {/* 1. LOAD EXTERNAL AR SCRIPTS */}
+      <script src="https://aframe.io/releases/1.5.0/aframe.min.js" strategy="beforeInteractive" />
+      <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js" strategy="beforeInteractive" />
 
-          <div className="relative flex-1 flex items-center justify-center">
-            {showQR ? (
-              <div className="flex flex-col items-center animate-in zoom-in duration-300">
-                <div className="p-4 bg-white rounded-xl shadow-[0_0_50px_rgba(245,158,11,0.3)]">
-                  <QRCodeSVG value={activeAR} size={200} level="H" includeMargin={true} />
+      <div className="min-h-screen bg-[#0c0c0c] text-white flex flex-col items-center font-sans pb-20 overflow-x-hidden">
+        
+        {/* --- MIND-AR OVERLAY VIEW --- */}
+        {activeAR && (
+          <div className="fixed inset-0 z-[200] bg-black animate-in fade-in duration-500">
+            <div className="fixed top-0 w-full p-8 flex justify-between items-center z-[220]">
+                <div className="flex flex-col">
+                   <span className="text-amber-500 text-[10px] tracking-[0.4em] uppercase font-bold">Sway Soul Studio</span>
+                   <span className="text-white/40 text-[8px] uppercase tracking-widest mt-1">Point at the coaster</span>
                 </div>
-                <p className="mt-8 text-amber-500 text-[10px] tracking-[0.3em] uppercase text-center max-w-[200px] leading-relaxed">
-                  Escanea este código para fijar la bebida en tu mesa
-                </p>
-              </div>
-            ) : (
-              <>
-                <div className="absolute w-[300px] h-[300px] bg-amber-600/10 blur-[120px] rounded-full pointer-events-none"></div>
-                <ModelViewer
-                  src={activeAR}
-                  ar
-                  ar-modes="quick-look webxr scene-viewer"
-                  camera-controls
-                  auto-rotate
-                  shadow-intensity="2"
-                  exposure="1.2"
-                  environment-image="neutral"
-                  style={{ width: '100%', height: '80vh', zIndex: 101 }}
+                <button 
+                  onClick={() => setActiveAR(null)} 
+                  className="bg-white/10 backdrop-blur-md border border-white/20 text-white w-12 h-12 rounded-full flex items-center justify-center text-xl"
+                >✕</button>
+            </div>
+
+            <a-scene 
+              mindar-image="imageTargetSrc: /targets.mind; autoStart: true; uiLoading: no; uiError: no; uiScanning: yes;" 
+              embedded
+              color-space="sRGB" 
+              renderer="colorManagement: true, physicallyCorrectLights" 
+              vr-mode-ui="enabled: false" 
+              device-orientation-permission-ui="enabled: false"
+            >
+              <a-assets>
+                <a-asset-item id="drinkModel" src={activeAR}></a-asset-item>
+              </a-assets>
+
+              <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+              <a-entity mindar-image-target="targetIndex: 0">
+                <a-gltf-model 
+                  src="#drinkModel" 
+                  rotation="0 0 0" 
+                  position="0 0 0.1" 
+                  scale="0.05 0.05 0.05"
+                  animation="property: rotation; to: 0 360 0; dur: 8000; easing: linear; loop: true"
                 >
-                  <button slot="ar-button" className="absolute bottom-10 left-1/2 -translate-x-1/2 bg-amber-500 text-black px-8 py-4 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl">
-                    Ver en mi Mesa
-                  </button>
-                </ModelViewer>
-                <div className="absolute bottom-[15vh] w-[280px] h-[40px] border border-amber-500/30 rounded-[100%] bg-gradient-to-b from-amber-500/10 to-transparent blur-sm z-[100]"></div>
-              </>
-            )}
+                </a-gltf-model>
+              </a-entity>
+            </a-scene>
+
+            <style jsx global>{`
+              .a-canvas { z-index: 201 !important; }
+              video { 
+                z-index: 200 !important; 
+                position: fixed !important; 
+                top: 0; left: 0; 
+                width: 100vw !important; height: 100vh !important; 
+                object-fit: cover !important; 
+              }
+            `}</style>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* HEADER */}
-      <header className="w-full text-center py-16">
-        <h1 className="text-5xl md:text-8xl tracking-[0.4em] font-bold bg-gradient-to-r from-white via-amber-200 to-white bg-clip-text text-transparent">SWAY SOUL</h1>
-        <div className="w-24 h-[1px] bg-amber-500/40 mx-auto mt-4 shadow-[0_0_10px_rgba(245,158,11,0.5)]"></div>
-      </header>
+        {/* --- MAIN MENU UI --- */}
+        <header className="w-full text-center py-20 px-6">
+          <h1 className="text-4xl md:text-7xl tracking-[0.5em] font-light text-white mb-2 uppercase">Sway Soul</h1>
+          <p className="text-[10px] tracking-[0.6em] text-amber-500 uppercase">Interactive Bar Experience</p>
+        </header>
 
-      {/* NAV */}
-      <nav className="flex flex-wrap justify-center gap-4 mb-16 px-6">
-        {categories.map(cat => (
-          <button key={cat} onClick={() => setFilter(cat)} className={`px-6 py-2 border rounded-full text-[10px] uppercase tracking-[0.3em] transition-all duration-500 ${filter === cat ? "border-amber-500 bg-amber-500/10 text-amber-200" : "border-white/5 text-white/30"}`}>{cat}</button>
-        ))}
-      </nav>
+        <nav className="flex flex-wrap justify-center gap-3 mb-12 px-6 max-w-4xl">
+          {categories.map(cat => (
+            <button 
+              key={cat} 
+              onClick={() => setFilter(cat)} 
+              className={`px-5 py-2 rounded-full text-[9px] uppercase tracking-widest border transition-all duration-300 ${filter === cat ? "bg-amber-500 border-amber-500 text-black font-bold" : "border-white/10 text-white/40 hover:border-white/30"}`}
+            >
+              {cat}
+            </button>
+          ))}
+        </nav>
 
-      {/* LIST */}
-      <div className="w-full max-w-5xl px-4 space-y-8">
-        {filteredItems.map(item => (
-          <div key={item.id} className="group relative bg-white/[0.02] border border-white/5 rounded-3xl overflow-hidden hover:bg-white/[0.04] transition-all duration-700">
-            <div className="flex flex-row h-48 md:h-64">
-              {item.image && (
-                <div className="w-1/3 min-w-[140px] h-full overflow-hidden border-r border-white/5" onClick={() => item.glb && setActiveAR(item.glb)}>
-                  <img src={item.image} className="w-full h-full object-cover grayscale-[0.3] group-hover:grayscale-0 transition-all duration-1000" alt={item.name} />
-                </div>
-              )}
-              <div className="flex-1 p-6 flex flex-col justify-between">
-                <div>
-                  <div className="flex justify-between items-start">
-                    <span className="text-[10px] text-amber-500 font-bold uppercase tracking-[0.3em]">{item.mood}</span>
-                    {item.glb && <button onClick={() => setActiveAR(item.glb!)} className="text-[9px] bg-amber-500 text-black px-3 py-1 rounded-full font-bold uppercase tracking-tighter">Ver 3D</button>}
+        <div className="w-full max-w-3xl px-6 space-y-6">
+          {filteredItems.map(item => (
+            <div key={item.id} className="group border-b border-white/5 pb-6">
+              <div className="flex justify-between items-end">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="text-[8px] text-amber-500 font-bold uppercase tracking-widest">{item.mood}</span>
+                    {item.glb && (
+                      <button 
+                        onClick={() => setActiveAR(item.glb!)} 
+                        className="text-[8px] bg-amber-500/10 border border-amber-500/50 text-amber-500 px-2 py-0.5 rounded uppercase font-bold hover:bg-amber-500 hover:text-black transition-all"
+                      >
+                        Launch AR 
+                      </button>
+                    )}
                   </div>
-                  <h3 className="text-xl md:text-3xl uppercase tracking-tighter text-white/90 mt-2">{item.name}</h3>
-                  <p className="text-xs text-white/40 italic mt-2 line-clamp-2">{item.desc}</p>
+                  <h3 className="text-xl md:text-2xl font-medium tracking-tight text-white/90">{item.name}</h3>
+                  <p className="text-sm text-white/40 mt-1 font-light italic">{item.desc}</p>
                 </div>
-                <div className="text-right">
-                  <span className="text-amber-200 font-bold text-2xl">{item.price}</span>
+                <div className="text-right ml-4">
+                  <span className="text-lg font-medium text-amber-200">{item.price}</span>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
+
+        <footer className="mt-20 text-[8px] tracking-[0.4em] text-white/20 uppercase">
+          Sway Soul &copy; 2026 | Barcelona
+        </footer>
       </div>
-    </div>
+    </>
   );
 }
