@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { QRCodeSVG } from 'qrcode.react'; 
 
-// --- TYPES & INTERFACES ---
+// --- TYPES ---
 interface MenuItem {
   id: number;
   name: string;
@@ -14,18 +15,11 @@ interface MenuItem {
   glb?: string; 
 }
 
-// FIX FOR VS CODE RED LINES
 const ModelViewer = 'model-viewer' as any;
 
 const categories = [
-  "all", 
-  "menú a la carta", 
-  "padellino gourmet", 
-  "tablas", 
-  "signature cocktails", 
-  "iba cocktails", 
-  "the macallan",
-  "licores"
+  "all", "menú a la carta", "padellino gourmet", "tablas", 
+  "signature cocktails", "iba cocktails", "the macallan", "licores"
 ];
 
 const menuData: MenuItem[] = [
@@ -58,7 +52,7 @@ const menuData: MenuItem[] = [
   { id: 22, name: "Tabla de Queso", price: "17€", category: "tablas", desc: "Parmigiano 18M, Brie, Gorgonzola DOP, Pecorino Sardo y Mermelada.", mood: "Gourmet", image: "https://www.swaysoul.com/wp-content/uploads/2026/03/IMG_1198-scaled-1.jpeg" },
   { id: 23, name: "Tabla de Embutidos", price: "17€", category: "tablas", desc: "Mortadella DOP, Coppa Stagionata, Speck DOP, Prosciutto 18M, Spianata Calabra.", mood: "Gourmet", image: "https://www.swaysoul.com/wp-content/uploads/2026/03/IMG_1174-scaled.jpeg" },
 
-  // --- SIGNATURE COCKTAILS (WITH GLB) ---
+  // --- SIGNATURE COCKTAILS ---
   { id: 24, name: "Smoky Peach", price: "15€", category: "signature cocktails", desc: "Laphroaig 10, Melocotón Fermentado, Honey Jengibre, Limón.", mood: "Signature", image: "https://www.swaysoul.com/wp-content/uploads/2026/03/507FF8B5-CF39-4966-AD6E-1790890D96CF-scaled.jpeg", glb: "https://modelviewer.dev/shared-assets/models/Astronaut.glb" },
   { id: 25, name: "Malhigo", price: "15€", category: "signature cocktails", desc: "Gin Roku, Granadina Artesana, Zumo de Limón, Sal.", mood: "Signature", image: "https://www.swaysoul.com/wp-content/uploads/2025/09/Image-10.jpg", glb: "https://modelviewer.dev/shared-assets/models/glTF-Sample-Assets/Models/DamagedHelmet/glTF-Binary/DamagedHelmet.glb" },
   { id: 26, name: "Bombastic", price: "14€", category: "signature cocktails", desc: "Hibiki Harmony, Orange & Chocolate Bitter, Agave.", mood: "Signature", image: "https://www.swaysoul.com/wp-content/uploads/2025/09/Image-9.jpg", glb: "https://modelviewer.dev/shared-assets/models/Astronaut.glb" },
@@ -86,7 +80,7 @@ const menuData: MenuItem[] = [
   { id: 104, name: "Macallan 18 Sherry Oak", price: "14€ / 33€ / 66€", category: "the macallan", desc: "43° Single Malt", mood: "10ml / 30ml / 60ml" },
   { id: 105, name: "Macallan 25 Sherry Oak", price: "90€ / 250€ / 490€", category: "the macallan", desc: "43° Single Malt", mood: "10ml / 30ml / 60ml" },
 
-  // --- LICORES: WHISKY ---
+  // --- LICORES ---
   { id: 200, name: "Few Rye", price: "9,5€", category: "licores", desc: "46.5°", mood: "Whisky 60ml" },
   { id: 201, name: "Few Bourbon", price: "9€", category: "licores", desc: "46.5°", mood: "Whisky 60ml" },
   { id: 202, name: "Wild Turkey 84", price: "4€", category: "licores", desc: "40.5°", mood: "Whisky 60ml" },
@@ -102,8 +96,6 @@ const menuData: MenuItem[] = [
   { id: 212, name: "Laphroaig Quarter Cask", price: "10€", category: "licores", desc: "48°", mood: "Whisky 60ml" },
   { id: 213, name: "Jameson Select Black", price: "7€", category: "licores", desc: "40°", mood: "Whisky 60ml" },
   { id: 214, name: "Ardbeg 10 Y.O.", price: "13€", category: "licores", desc: "46°", mood: "Whisky 60ml" },
-
-  // --- LICORES: TEQUILA ---
   { id: 300, name: "Tequila 8 Plata", price: "8,5€", category: "licores", desc: "40°", mood: "Tequila 60ml" },
   { id: 301, name: "Tequila 8 Reposado", price: "9€", category: "licores", desc: "40°", mood: "Tequila 60ml" },
   { id: 302, name: "Don Julio Blanco", price: "9,5€", category: "licores", desc: "38°", mood: "Tequila 60ml" },
@@ -111,8 +103,6 @@ const menuData: MenuItem[] = [
   { id: 304, name: "Fortaleza Blanco", price: "9,5€", category: "licores", desc: "40°", mood: "Tequila 60ml" },
   { id: 305, name: "Clase Azul Plata", price: "22€", category: "licores", desc: "40°", mood: "Tequila 60ml" },
   { id: 306, name: "Clase Azul Reposado", price: "40€", category: "licores", desc: "40°", mood: "Tequila 60ml" },
-
-  // --- LICORES: MEZCAL ---
   { id: 400, name: "Ojo de Dios Blanco", price: "9,5€", category: "licores", desc: "42°", mood: "Mezcal 60ml" },
   { id: 401, name: "Ojo de Dios Café", price: "9,5€", category: "licores", desc: "35°", mood: "Mezcal 60ml" },
   { id: 402, name: "Siete Misterios Doba Yej", price: "9€", category: "licores", desc: "44°", mood: "Mezcal 60ml" },
@@ -125,6 +115,7 @@ const menuData: MenuItem[] = [
 export default function Menu() {
   const [filter, setFilter] = useState("all");
   const [activeAR, setActiveAR] = useState<string | null>(null);
+  const [showQR, setShowQR] = useState(false);
 
   const filteredItems = filter === "all" ? menuData : menuData.filter(item => item.category === filter);
 
@@ -138,114 +129,94 @@ export default function Menu() {
   return (
     <div suppressHydrationWarning={true} className="min-h-screen bg-[#0c0c0c] text-white flex flex-col items-center font-['Aboreto',cursive] pb-20">
       
-      {/* AR MODAL */}
+      {/* PREMIUM STUDIO + QR MODAL */}
       {activeAR && (
-        <div className="fixed inset-0 z-[100] bg-black flex flex-col">
-          <button 
-            onClick={() => setActiveAR(null)}
-            className="absolute top-8 right-6 z-[110] bg-white/10 backdrop-blur-md border border-white/20 text-white px-5 py-2 rounded-full font-bold uppercase text-[10px] tracking-[0.2em]"
-          >
-            Cerrar [X]
-          </button>
-
-          <div className="absolute top-20 left-0 right-0 z-[105] text-center px-10 pointer-events-none">
-            <p className="text-amber-500 text-[10px] uppercase tracking-[0.2em] animate-pulse">
-              Mueve tu móvil en círculos sobre la mesa para detectar la superficie
-            </p>
+        <div className="fixed inset-0 z-[100] bg-[#050505] flex flex-col animate-in fade-in duration-500">
+          <div className="absolute top-0 w-full p-8 flex justify-between items-center z-[110]">
+             <div className="flex flex-col">
+                <span className="text-amber-500 text-[10px] tracking-[0.4em] uppercase font-bold">Sway Studio</span>
+                <button onClick={() => setShowQR(!showQR)} className="text-white/40 text-[8px] uppercase tracking-widest mt-1 border-b border-white/10">
+                  {showQR ? "Volver al Modelo" : "Generar QR de Anclaje"}
+                </button>
+             </div>
+             <button onClick={() => {setActiveAR(null); setShowQR(false);}} className="bg-white/5 border border-white/10 text-white w-12 h-12 rounded-full flex items-center justify-center">✕</button>
           </div>
-          
-          <ModelViewer
-  src={activeAR}
-  ar
-  // 1. Prioritize 'scene-viewer' for Android and 'quick-look' for iOS 
-  // for the most stable "steady" tracking.
-  ar-modes="scene-viewer quick-look webxr"
-  ar-placement="floor"
-  
-  // 2. Camera controls for the 3D mode (pre-AR)
-  camera-controls
-  touch-action="pan-y"
-  
-  // 3. This stops the model from "auto-centering" or moving 
-  // unexpectedly when you are trying to look at details.
-  interaction-prompt="none"
-  
-  // 4. Visual improvements to make it look grounded
-  shadow-intensity="2"
-  shadow-softness="0.5"
-  exposure="1"
-  environment-image="neutral"
-  
-  style={{ width: '100%', height: '100%' }}
->
-  {/* The "Anchor" Button - crucial for stability */}
-  <button slot="ar-button" className="absolute bottom-12 left-1/2 -translate-x-1/2 bg-amber-500 text-black px-10 py-4 rounded-full font-black text-sm uppercase tracking-widest shadow-2xl">
-    📍 FIJAR EN LA MESA
-  </button>
 
-  <div slot="poster" className="flex items-center justify-center h-full bg-[#0c0c0c]">
-     <p className="text-amber-500/50 text-[10px] tracking-[0.3em] uppercase animate-pulse">
-        Preparando Vista Detallada...
-     </p>
-  </div>
-</ModelViewer>
+          <div className="relative flex-1 flex items-center justify-center">
+            {showQR ? (
+              <div className="flex flex-col items-center animate-in zoom-in duration-300">
+                <div className="p-4 bg-white rounded-xl shadow-[0_0_50px_rgba(245,158,11,0.3)]">
+                  <QRCodeSVG value={activeAR} size={200} level="H" includeMargin={true} />
+                </div>
+                <p className="mt-8 text-amber-500 text-[10px] tracking-[0.3em] uppercase text-center max-w-[200px] leading-relaxed">
+                  Escanea este código para fijar la bebida en tu mesa
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className="absolute w-[300px] h-[300px] bg-amber-600/10 blur-[120px] rounded-full pointer-events-none"></div>
+                <ModelViewer
+                  src={activeAR}
+                  ar
+                  ar-modes="quick-look webxr scene-viewer"
+                  camera-controls
+                  auto-rotate
+                  shadow-intensity="2"
+                  exposure="1.2"
+                  environment-image="neutral"
+                  style={{ width: '100%', height: '80vh', zIndex: 101 }}
+                >
+                  <button slot="ar-button" className="absolute bottom-10 left-1/2 -translate-x-1/2 bg-amber-500 text-black px-8 py-4 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl">
+                    Ver en mi Mesa
+                  </button>
+                </ModelViewer>
+                <div className="absolute bottom-[15vh] w-[280px] h-[40px] border border-amber-500/30 rounded-[100%] bg-gradient-to-b from-amber-500/10 to-transparent blur-sm z-[100]"></div>
+              </>
+            )}
+          </div>
         </div>
       )}
 
-      <header className="w-full text-center py-12">
-        <h1 className="text-5xl md:text-8xl tracking-[0.4em] font-bold bg-gradient-to-r from-white via-amber-200 to-white bg-clip-text text-transparent">
-          SWAY SOUL
-        </h1>
+      {/* HEADER */}
+      <header className="w-full text-center py-16">
+        <h1 className="text-5xl md:text-8xl tracking-[0.4em] font-bold bg-gradient-to-r from-white via-amber-200 to-white bg-clip-text text-transparent">SWAY SOUL</h1>
+        <div className="w-24 h-[1px] bg-amber-500/40 mx-auto mt-4 shadow-[0_0_10px_rgba(245,158,11,0.5)]"></div>
       </header>
 
-      <nav className="flex flex-wrap justify-center gap-3 mb-12 px-6">
+      {/* NAV */}
+      <nav className="flex flex-wrap justify-center gap-4 mb-16 px-6">
         {categories.map(cat => (
-          <button 
-            key={cat} 
-            onClick={() => setFilter(cat)} 
-            className={`px-5 py-3 border rounded-full text-xs uppercase tracking-[0.2em] transition-all font-bold ${filter === cat ? "border-amber-500 bg-amber-500/20 text-white shadow-[0_0_15px_rgba(245,158,11,0.3)]" : "border-white/10 text-white/40 hover:text-white/80"}`}
-          >
-            {cat}
-          </button>
+          <button key={cat} onClick={() => setFilter(cat)} className={`px-6 py-2 border rounded-full text-[10px] uppercase tracking-[0.3em] transition-all duration-500 ${filter === cat ? "border-amber-500 bg-amber-500/10 text-amber-200" : "border-white/5 text-white/30"}`}>{cat}</button>
         ))}
       </nav>
 
-      <div className="w-full max-w-5xl px-4 space-y-6">
+      {/* LIST */}
+      <div className="w-full max-w-5xl px-4 space-y-8">
         {filteredItems.map(item => (
-          <div key={item.id} className="flex flex-row bg-white/[0.03] border border-white/5 rounded-2xl overflow-hidden h-48 md:h-64 shadow-xl">
-            {item.image ? (
-              <div className="w-1/3 min-w-[140px] h-full overflow-hidden border-r border-white/5 relative group cursor-pointer" onClick={() => item.glb && setActiveAR(item.glb)}>
-                <img src={item.image} className="w-full h-full object-cover object-center transition-transform duration-1000 group-hover:scale-110" alt={item.name} loading="lazy" />
-                {item.glb && <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><span className="text-[10px] text-white border border-white p-2 rounded tracking-widest">VER 3D</span></div>}
-              </div>
-            ) : ( <div className="w-6 bg-amber-500/5 h-full" /> )}
-
-            <div className="flex-1 p-5 md:p-10 flex flex-col justify-between">
-              <div>
-                <div className="flex justify-between items-start">
-                  <span className="text-[10px] md:text-sm text-amber-500 font-black uppercase tracking-[0.3em]">{item.mood}</span>
-                  {item.glb && (
-                    <button onClick={() => setActiveAR(item.glb!)} className="text-[9px] md:text-xs border border-amber-500/50 text-amber-500 px-3 py-1 rounded-full hover:bg-amber-500 hover:text-black transition-colors flex items-center gap-2 font-bold">
-                      <span className="animate-pulse">●</span> AR LIVE
-                    </button>
-                  )}
+          <div key={item.id} className="group relative bg-white/[0.02] border border-white/5 rounded-3xl overflow-hidden hover:bg-white/[0.04] transition-all duration-700">
+            <div className="flex flex-row h-48 md:h-64">
+              {item.image && (
+                <div className="w-1/3 min-w-[140px] h-full overflow-hidden border-r border-white/5" onClick={() => item.glb && setActiveAR(item.glb)}>
+                  <img src={item.image} className="w-full h-full object-cover grayscale-[0.3] group-hover:grayscale-0 transition-all duration-1000" alt={item.name} />
                 </div>
-                <h3 className="text-xl md:text-3xl uppercase tracking-tighter mt-2 leading-tight font-medium text-white/90">{item.name}</h3>
-                <p className="text-sm md:text-lg text-white/50 italic mt-3 line-clamp-2 md:line-clamp-none tracking-wider leading-relaxed">{item.desc}</p>
+              )}
+              <div className="flex-1 p-6 flex flex-col justify-between">
+                <div>
+                  <div className="flex justify-between items-start">
+                    <span className="text-[10px] text-amber-500 font-bold uppercase tracking-[0.3em]">{item.mood}</span>
+                    {item.glb && <button onClick={() => setActiveAR(item.glb!)} className="text-[9px] bg-amber-500 text-black px-3 py-1 rounded-full font-bold uppercase tracking-tighter">Ver 3D</button>}
+                  </div>
+                  <h3 className="text-xl md:text-3xl uppercase tracking-tighter text-white/90 mt-2">{item.name}</h3>
+                  <p className="text-xs text-white/40 italic mt-2 line-clamp-2">{item.desc}</p>
+                </div>
+                <div className="text-right">
+                  <span className="text-amber-200 font-bold text-2xl">{item.price}</span>
+                </div>
               </div>
-              <div className="self-end"><span className="text-amber-200 font-bold text-2xl md:text-4xl tracking-tighter">{item.price}</span></div>
             </div>
           </div>
         ))}
       </div>
-
-      <style jsx global>{`
-        body { background-color: #0c0c0c; margin: 0; overflow-x: hidden; }
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: #0c0c0c; }
-        ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
-        model-viewer { --progress-bar-color: #f59e0b; }
-      `}</style>
     </div>
   );
 }
