@@ -1,7 +1,7 @@
 // @ts-nocheck
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Script from 'next/script';
 
 // --- TYPES ---
@@ -80,28 +80,53 @@ export default function Menu() {
   const [filter, setFilter] = useState("all");
   const [activeAR, setActiveAR] = useState<string | null>(null);
 
+  // KILL SWITCH: Force-stops the AR system when the overlay is closed
+  useEffect(() => {
+    if (!activeAR) {
+      const sceneEl = document.querySelector('a-scene');
+      if (sceneEl && sceneEl.systems && sceneEl.systems['mindar-image-system']) {
+        sceneEl.systems['mindar-image-system'].stop();
+      }
+    }
+  }, [activeAR]);
+
   const filteredItems = filter === "all" ? menuData : menuData.filter(item => item.category === filter);
 
   return (
     <>
-      <Script 
-        src="https://aframe.io/releases/1.5.0/aframe.min.js" 
-        strategy="beforeInteractive" 
-      />
-      <Script 
-        src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js" 
-        strategy="beforeInteractive" 
-      />
+      {/* CSS FIX: Prevents "Ghost" scanning UI from appearing on the menu */}
+      <style>{`
+        .mindar-ui-scanning, .mindar-ui-loading {
+          display: ${activeAR ? 'block' : 'none'} !important;
+        }
+        .a-enter-vr, .a-enter-ar {
+          display: none !important;
+        }
+      `}</style>
+
+      <Script src="https://aframe.io/releases/1.5.0/aframe.min.js" strategy="beforeInteractive" />
+      <Script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js" strategy="beforeInteractive" />
 
       <div className="min-h-screen bg-[#0c0c0c] text-white flex flex-col items-center pb-20">
+        
         {activeAR && (
           <div className="fixed inset-0 z-[200] bg-black">
             <div className="fixed top-0 w-full p-8 flex justify-between items-center z-[220]">
                 <div className="flex flex-col">
                    <span className="text-amber-500 text-[10px] tracking-[0.4em] uppercase font-bold font-sans">Sway Soul Studio</span>
                 </div>
-                <button onClick={() => setActiveAR(null)} className="bg-white/10 border border-white/20 text-white w-12 h-12 rounded-full text-xl flex items-center justify-center">✕</button>
+                <button 
+                  onClick={() => {
+                    const sceneEl = document.querySelector('a-scene');
+                    if (sceneEl) sceneEl.parentNode.removeChild(sceneEl);
+                    setActiveAR(null);
+                  }} 
+                  className="bg-white/10 border border-white/20 text-white w-12 h-12 rounded-full text-xl flex items-center justify-center transition-transform active:scale-90"
+                >
+                  ✕
+                </button>
             </div>
+
             <a-scene 
               mindar-image={`imageTargetSrc: /targets.mind; autoStart: true; uiLoading: no; uiError: no; uiScanning: yes;`} 
               embedded 
@@ -121,14 +146,15 @@ export default function Menu() {
                   position="0 0 0.1" 
                   scale="0.05 0.05 0.05" 
                   animation="property: rotation; to: 0 360 0; dur: 8000; easing: linear; loop: true"
-                >
-                </a-gltf-model>
+                />
               </a-entity>
             </a-scene>
           </div>
         )}
 
-        <header className="py-20 text-center"><h1 className="text-4xl md:text-7xl tracking-[0.5em] font-light uppercase">Sway Soul</h1></header>
+        <header className="py-20 text-center">
+            <h1 className="text-4xl md:text-7xl tracking-[0.5em] font-light uppercase">Sway Soul</h1>
+        </header>
         
         <nav className="flex flex-wrap justify-center gap-3 mb-12 px-6 max-w-4xl">
           {categories.map(cat => (
